@@ -1,0 +1,25 @@
+
+1). Utwórz klasy Main, Gameplay, MapGenerator 
+
+2). Klasa Main: 
+- Stwórz obiekt klasy JFrame
+- Stwórz obiekt klasy gameplay
+- Stwórz okienko gry (setBounds, setTitle, setResizable, setVisible, setDefaultCloseOperation). 
+
+3). Add object to the game window. Extend the GamePlay Class 
+- extends JPanel implements KeyListener, ActionListener 
+- Set starting values of the game (play, score, totalBricks=21, Timer, delay =8)
+- Set the values of the pedal and the ball (playerX = 310, ballPosX, ballPosY, ballXdir= -1, ballYdir = -2)
+
+4). Set values for the gamePlay initialization, (Po polsku stwórz konstruktor): 
+	- addKeyListener(this)
+	- setFocusable(true)
+	- setFocusTraversalKeysEnabled(false);
+	- timer = new Timer(delay, this);
+	- timer.start();
+
+5).
+public void print(Graphics g)
+
+
+
