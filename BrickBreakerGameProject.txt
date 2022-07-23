@@ -18,8 +18,230 @@
 	- timer = new Timer(delay, this);
 	- timer.start();
 
-5).
-public void print(Graphics g)
+5). Create the graphics Method, (display pedal, ball, and control all the things in the game)
+public void paint(Graphics g) {
+- g.setColor(Color.white);
+- g.fillRect(1,1,692,592)	- background
+- g.setColor(Color.yellow);
+- g.fillRect(0,0,3,592);	- border
+- g.fillRect(0,0,692,3);	- border 
+- g.fillRect(691,0,3,592);	- border
+
+- g.setColor(Color.blue);
+- g.fillRect(playerX, 550, 100, 8); 	- palet
+
+- g.setColor(Color.green);
+- g.fillOval(ballposX, ballposY, 20, 20);		- Ball
+
+}
+
+6). Ball and pedal functionality
+Define left and right arrow.
+So we need to fill the method named keyPressed. 
+if(arg0.getKeyCode() == KeyEvent.VK_LEFT){
+	if(playerX < 10){
+		playerX = 10;
+	}else 
+		moveLeft();
+}
+
+To samo dla strony prawej. 	moveRight();
+
+7).   Define the moveLeft and moveRight method.
+public void moveRight(){
+	play = true;
+	playerX = playerX + 20;
+}
+
+8). W klasie Main dodaj gameplay do klasy obj.
+W klasie GamePlay w metodzie paint dodaj g.dispose();
+W klasie GamePlay w metodzie actionPerformed wystartuj timer. (timer.start(); repaint();)
+
+9). Ustaw funkcjonalność piłki która będzie się poruszać po planszy (ten krok wykonaj przed repaint();)
+Zrób pętle if która ma argument play = true.
+w środku if zdefiniuj kolejny if który sprawdza: 
+if(new Rectangle (ballPosX, ballPosY, 20, 30).intersects(new Rectangle (playerX, 550, 100, 8))){
+	ballYdir = -ballYdir;
+}
+
+ballPosX += ballXdir;
+ballPosY += ballYdir;
+
+// Piłka gdy wejdzie w interakcję z borderem.
+
+if(ballPosX < 0){
+	ballXdir = -ballXdir;
+}
+if(ballPosY < 0){
+	ballYdir = -ballYdir;
+}
+
+if(ballPosX > 670){
+	ballXdir = -ballXdir;
+}
+
+
+10). Displaying the bricks map
+Go to the MapGenerator class 
+
+Create the two dimensional Array, brickWidth, brickHeight
+Public int map [][];
+public int brickWidth;
+public int brickHeight; 
+
+Create the MapGenerator constructor with 2 arguments (int row, int col){
+// W poniższej pętli for stworzymy matrycę oraz wartość każdego klocka.
+	map = new int [row][col];
+	for(int i = 0; i < map.length; i++){
+		for(int j = 0; j < map[0].length; j++){
+			map[i][j] = 1;
+		}
+	}
+
+brickWidth = 540/col;
+brickHeight = 150/row;
+
+
+Once we have created here our Bricks Matrix, we will continue with creating the graphics.
+
+public void draw (Graphics2D g){
+		for(int i = 0; i < map.length; i++){
+			for(int j = 0; j < map[0].length; j++){
+				// for each position on the map (which is IJ)
+				if(map[i][j] > 0){
+					g.setColor(Color.black);
+					g.fillRect(j * brickWidth + 80, i * brickHeight + 50, brickWidth, brickHeight);
+				}	
+			}
+		}
+}
+
+
+11). W celu wyświetlenia naszej mapy, potrzebujemy ją zawołać z klasy gameplay. 
+W klasie Gameplay nad konstruktorem 
+
+private MapGenerator map;
+
+Następnie musimy także zainicjować generator w konstruktorze GamePlay. 
+
+map = new MapGenerator(3, 7);
+
+Następnie w metodzie paint w klasie GamePlay: 
+
+map.draw((Graphics2D)g);
+
+
+12). Aby podzielić bloki, robimy dalsze pisanie kodu w metodzie draw  w klasie MapGenerator 
+uzyskamy to dzięki g.setStroke funkcji 
+
+g.setStroke(new BasicStroke(3));
+g.setColor(Color.white);
+g.drawRect(j * brickWidth + 80, i * brickHeight + 50, brickWidth, brickHeight);
+
+
+13). Bricks functionality
+Metode nadająca wartość naszym klockom, umieszczamy w klasie MapGenerator
+
+public void setBrickValue( int value, int row, int col ){
+	map[row][col] = value;
+}
+
+Następną rzeczą jest umożliwienie kulce interakcję z klockami 
+Podobną rzecz zrobiliśmy z paletką w interakcji z kulką
+A więc w metodzie actionPerformed w klasie GamePlay pod if (new Rectangle(ballposX, ballPosY, 20, 30))
+for(int i = 0; i < map.map.length; i++){
+	for(int j = 0; j < map.map[0].length; j++){
+		if(map.map[i][j] > 0){
+			int brickX = j*map.brickWidth + 80;
+			int brickY = i*map.brickHeight + 50;
+			int brickWidth = map.brickWidth;
+			int brickHeight = map.brickHeight;
+
+			Rectangle rect = new Rectangle(brickX, brickY, brickWidth, brickHeight);
+			Rectangle ballRect = new Rectangle(ballposX, ballposY, 20, 20);
+			Rectangle brickRect = rect;
+
+			if(ballRect.intersects(brickRect)){
+				map.setBrickValue(0, i, j);
+				totalBricks--;
+				score += 5;
+			
+				if(ballposX + 19 <= brickRect.x || ballposX + 1 >= brickRect.x + brickRect.width){
+					ballXdir = -ballXdir;
+				}else {
+					ballYdir = -ballYdir;
+				}
+			}
+		}
+	}
+}
+
+
+14). Restart gry i wyświetlenie wyniku 
+W klasie GamePlay i metodzie paint na samym dole zdefiniuj 
+g.setColor(Color.black);
+g.setFont(new Font("serif", Font.BOLD, 25));
+g.drawString("" + score, 590, 30);
+
+if(totalBricks <= 0) {
+	play = false;
+	ballXdir = 0;
+	ballYdir = 0;
+	g.setColor(Color.GREEN);
+	g.setFont(new Font("serif", Font.BOLD, 30));
+	g.drawString("You won,  Score: " + score, 190, 300);
+	
+	g.setFont(new Font("serif", Font.BOLD, 20));
+	g.drawString("Press Enter to Restart", 230, 350);
+}
+
+
+if(ballposY > 570) {
+	play = false;
+	ballXdir = 0;
+	ballYdir = 0;
+	g.setColor(Color.RED);
+	g.setFont(new Font("serif", Font.BOLD, 30));
+	g.drawString("Game over, Score: " + score, 190, 300);
+	
+	g.setFont(new Font("serif", Font.BOLD, 20));
+	g.drawString("Press Enter to Restart", 230, 350);
+	
+
+}
+
+
+15). Restart gdy za pomocą klawisza enter. 
+Aby to zrobić należy napisać warunek IF w metodzie keyPressed
+
+if(arg0.getKeyCode() == KeyEvent.VK_ENTER) {
+	
+	if(!play) {
+		play = true;
+		ballposX = 120;
+		ballposY = 350;
+		ballXdir = -1;
+		ballYdir = -2;
+		score = 0;
+		totalBricks = 21;
+		map = new MapGenerator(3, 7);
+
+		repaint();
+}
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
